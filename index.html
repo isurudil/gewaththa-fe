@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Twitter Bootstrap 3 Fixed Layout Example</title>
+    <title>Gewaththa</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/custom-nav-bar.css">
     <link rel="stylesheet" href="slider/bjqs.css">
@@ -43,8 +43,8 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="#" target="">Home</a></li>
-                    <li><a href="#" target="_blank">Reports</a></li>
+                    <li class="active" id="home-item"><a>Home</a></li>
+                    <li id="insert-date-item"><a>Insert</a></li>
                     <li><a href="#" target="_blank">Contact</a></li>
                 </ul>
             </div>
@@ -79,9 +79,6 @@
                             <a href="#">Another action</a>
                         </li>
                         <li class="divider">
-                        </li>
-                        <li>
-                            <a href="#">Something else here</a>
                         </li>
                     </ul>
                 </div>
@@ -134,6 +131,10 @@
 <script>
     jQuery(document).ready(function ($) {
 
+        var halfWidth = $(document).width() / 2;
+        var contentDivWidth = $('#parent-container').width();
+        var fullDistanceToHide = halfWidth - contentDivWidth / 2 + contentDivWidth;
+        var fullDistanceToVisible = halfWidth - contentDivWidth / 2;
 
         $('#banner-fade').bjqs({
             height: 320,
@@ -145,14 +146,33 @@
 
             $.each(data, function (key, obj) {
                 var divisionName = obj.divisionName;
+                var divisionId = obj.divisionId;
                 $('#dropdown-division-list').append("<li><a> " + divisionName + "</a></li><div style='background-color: #d5d5d5;height: 1px'/>")
+                $('#dropdown-division-list').append("<li style='display: none'><a> " + divisionId + "</a></li>");
             });
         });
 
-        $(".dropdown-menu").on("click","li a", function(){
-            var selText = " "+$(this).text()+" ";
+        $(".dropdown-menu").on("click", "li a", function () {
+            var selText = " " + $(this).text() + " ";
             $(this).parents('.btn-group').find('.dropdown-toggle').html(selText + '<span class="caret"></span>');
         });
+
+        $('#insert-date-item').click(function () {
+
+
+            $('#parent-container').animate({
+                marginLeft: -fullDistanceToHide
+            });
+        });
+        $('#home-item').click(function () {
+
+            $('#parent-container').animate({
+
+                marginLeft: fullDistanceToVisible
+
+            });
+        });
+
     });
 
 
