@@ -19,7 +19,7 @@
         body {
             padding-top: 70px;
             overflow-x: hidden;
-            background: url("img/imageedit_14_6610735535.jpg") no-repeat center top fixed;
+            background: url("img/imageedit_14_6610735535.jpg") repeat-y center top fixed;
             background-size: 100%;
         }
 
@@ -43,9 +43,9 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="nav navbar-nav">
-                    <li class="active" id="home-item"><a>Home</a></li>
-                    <li id="insert-date-item"><a>Insert</a></li>
-                    <li><a href="#" target="_blank">Contact</a></li>
+                    <li class="active" id="home-item"><a class="btn">Home</a></li>
+                    <li id="insert-date-item"><a class="btn">Insert</a></li>
+                    <li><a class="btn">Contact</a></li>
                 </ul>
             </div>
         </div>
@@ -57,7 +57,7 @@
                 <span class="label label-primary">Division</span>
 
                 <div class="btn-group">
-                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">- Select Division - <span
+                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle"> - Select Division - <span
                             class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" id="dropdown-division-list">
@@ -68,18 +68,10 @@
                 <span class="label label-primary">Village</span>
 
                 <div class="btn-group">
-                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">- Select Village -<span
+                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle"> - Select Village - <span
                             class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" id="dropdown-garden">
-                        <li>
-                            <a href="#">Action</a>
-                        </li>
-                        <li class="disabled">
-                            <a href="#">Another action</a>
-                        </li>
-                        <li class="divider">
-                        </li>
+                    <ul class="dropdown-menu" id="dropdown-village-list">
                     </ul>
                 </div>
             </div>
@@ -87,10 +79,10 @@
                 <span class="label label-primary">Garden</span>
 
                 <div class="btn-group">
-                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">- Select Garden -<span
+                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle"> - Select Garden - <span
                             class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" id="dropdown-village-list">
+                    <ul class="dropdown-menu" id="dropdown-garden-list">
                     </ul>
                 </div>
             </div>
@@ -129,13 +121,17 @@
 </div>
 </div>
 <script>
+    function setSelectedItemToDropDown($, selText) {
+        $(this).parents('.btn-group').find('.dropdown-toggle').html(selText + '<span class="caret"></span>');
+    }
     jQuery(document).ready(function ($) {
 
         var halfWidth = $(document).width() / 2;
         var contentDivWidth = $('#parent-container').width();
         var fullDistanceToHide = halfWidth - contentDivWidth / 2 + contentDivWidth;
         var fullDistanceToVisible = halfWidth - contentDivWidth / 2;
-
+        var selectedDivId = -1;
+        var selectedVillageId = -1;
         $('#banner-fade').bjqs({
             height: 320,
             width: 620,
@@ -147,31 +143,76 @@
             $.each(data, function (key, obj) {
                 var divisionName = obj.divisionName;
                 var divisionId = obj.divisionId;
-                $('#dropdown-division-list').append("<li><a> " + divisionName + "</a></li><div style='background-color: #d5d5d5;height: 1px'/>")
-                $('#dropdown-division-list').append("<li style='display: none'><a> " + divisionId + "</a></li>");
+                $('#dropdown-division-list').append("<li><a class='btn' value=" + divisionId + ">" + divisionName + "</a></li><div style='background-color: #d5d5d5;height: 1px'/>");
+                ;
             });
         });
 
-        $(".dropdown-menu").on("click", "li a", function () {
+        $("#dropdown-division-list").on("click", "a", function () {
             var selText = " " + $(this).text() + " ";
-            $(this).parents('.btn-group').find('.dropdown-toggle').html(selText + '<span class="caret"></span>');
+            setSelectedItemToDropDown.call(this, $, selText);
+            selectedDivId = $(this).attr('value');
+            console.log("calling fillVillagelist with value + " + selectedDivId);
+            $('#dropdown-garden-list').parents('.btn-group').find('.dropdown-toggle').html( " - Select Garden - " + '<span class="caret"></span>');
+            fillVillagelist();
+
         });
+
+        $("#dropdown-village-list").on("click", "a", function () {
+            var selText = " " + $(this).text() + " ";
+            setSelectedItemToDropDown.call(this, $, selText);
+            selectedVillageId = $(this).attr('value');
+            console.log(selectedVillageId);
+            fillGardenList();
+        });
+
+        $("#dropdown-garden-list").on("click", "a", function () {
+            var selText = " " + $(this).text() + " ";
+            setSelectedItemToDropDown.call(this, $, selText);
+        });
+
 
         $('#insert-date-item').click(function () {
-
-
             $('#parent-container').animate({
                 marginLeft: -fullDistanceToHide
-            });
+            }, 100);
         });
         $('#home-item').click(function () {
-
             $('#parent-container').animate({
-
                 marginLeft: fullDistanceToVisible
-
-            });
+            }, 100);
         });
+
+        function fillVillagelist() {
+            console.log("getting json for + " + selectedDivId);
+            $('#dropdown-village-list').empty();
+            $('#dropdown-village-list').parents('.btn-group').find('.dropdown-toggle').html( " - Select Village - " + '<span class="caret"></span>');
+            $.getJSON("http://54.68.235.231/villages/get-villages-by-division-id/" + selectedDivId, function (data) {
+                $.each(data, function (key, obj) {
+                    var villageName = obj.vilName;
+                    var villageId = obj.vilId;
+                    $('#dropdown-village-list').append("<li><a class='btn' value=" + villageId + ">" + villageName + "</a></li><div style='background-color: #d5d5d5;height: 1px'/>");
+                    ;
+                });
+            });
+
+        }
+
+        function fillGardenList() {
+            $('#dropdown-garden-list').empty();
+            $('#dropdown-garden-list').parents('.btn-group').find('.dropdown-toggle').html( " - Select Garden - " + '<span class="caret"></span>');
+            $.getJSON("http://54.68.235.231/gardens/get-gardens-by-village-id/" + selectedVillageId, function (data) {
+                $.each(data, function (key, obj) {
+                    var gardenOwnerName = obj.garOwnName;
+                    var gardenId = obj.garId;
+                    $('#dropdown-garden-list').append("<li><a class='btn' value=" + gardenId + ">" + gardenOwnerName + "</a></li><div style='background-color: #d5d5d5;height: 1px'/>");
+                    ;
+                });
+            });
+
+        }
+
+
 
     });
 
